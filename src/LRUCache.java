@@ -3,7 +3,7 @@ import java.util.Map;
 
 public class LRUCache {
 
-    class Node {
+    static class Node {
         int key;
         int value;
         Node prev;
@@ -34,47 +34,47 @@ public class LRUCache {
 
     // Get value by key
     public int get(int key) {
-        if (!map.containsKey(key)) {
-            return -1;
-        }
-
         Node node = map.get(key);
-        remove(node);
-        insertToHead(node); // mark as recently used
+        if (node == null) return -1;
+
+        removeNode(node);
+        addToFront(node); // mark as recently used
 
         return node.value;
     }
 
     // Put key-value
     public void put(int key, int value) {
-        if (map.containsKey(key)) {
-            Node node = map.get(key);
-            node.value = value;
+        if (capacity == 0) return;
 
-            remove(node);
-            insertToHead(node);
+        Node node = map.get(key);
+
+        if (node != null) {
+            node.value = value;
+            removeNode(node);
+            addToFront(node);
         } else {
             if (map.size() == capacity) {
                 // remove LRU (node before tail)
                 Node lru = tail.prev;
-                remove(lru);
+                removeNode(lru);
                 map.remove(lru.key);
             }
 
             Node newNode = new Node(key, value);
             map.put(key, newNode);
-            insertToHead(newNode);
+            addToFront(newNode);
         }
     }
 
     // Remove node from list
-    private void remove(Node node) {
+    private void removeNode(Node node) {
         node.prev.next = node.next;
         node.next.prev = node.prev;
     }
 
     // Insert node right after head
-    private void insertToHead(Node node) {
+    private void addToFront(Node node) {
         node.next = head.next;
         node.prev = head;
 
